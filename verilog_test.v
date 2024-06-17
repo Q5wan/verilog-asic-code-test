@@ -8,41 +8,40 @@ module Q5wan_4_bit_ALU (
     input  wire       clk,      // clock
     input  wire       rst_n     // reset_n - low to reset
 );
-  /*on the positive edge of the clock put the first 8 bits into either A or B based on
-  which the state of AB*/
-  reg [7:0] A, B;
-  wire [7:0] AB;
+
+  // Register declarations
+  reg [7:0] A, B;     // Registers for storing inputs A and B
+  reg [7:0] Y;        // Register for storing output Y
+
+  // Assign A and B on positive edge of clock and reset
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       A <= 8'b0;
       B <= 8'b0;
-    end else
+    end else begin
       A <= ui_in & 8'b0000_1111;
       B <= (ui_in & 8'b1111_0000) >> 4;
+    end
   end
-  
-  /*on the negative edge of the clock output the set Y to */
-  wire [7:0] operation;
-  reg [7:0] Y;
+
+  // Calculate Y on negative edge of clock
   always @(negedge clk) begin
-    operation <= (uio_in & 8'b0000_0111);
-    case (operation)
-      8'b0000_0000 : Y <= A+B;
-      8'b0000_0001 : Y <= A-B;
-      8'b0000_0010 : Y <= A&B;
-      8'b0000_0011 : Y <= A|B;
-      8'b0000_0100 : Y <= A^B;
-      8'b0000_0101 : Y <= ~A;
-      8'b0000_0110 : Y <= A>>1;
-      8'b0000_0111 : Y <= A<<1;
-      default : Y <= 8'b0;
+    case (uio_in[2:0])  // Use only lower 3 bits of uio_in for operation selection
+      3'b000 : Y <= A + B;
+      3'b001 : Y <= A - B;
+      3'b010 : Y <= A & B;
+      3'b011 : Y <= A | B;
+      3'b100 : Y <= A ^ B;
+      3'b101 : Y <= ~A;
+      3'b110 : Y <= A >> 1;
+      3'b111 : Y <= A << 1;
+      default : Y <= 8'b0; // Default case, though this should not occur with valid inputs
     endcase
   end
-  
-  
-  // Assign other outputs based on the design requirements
-  assign uo_out = Y; // Placeholder, replace with actual logic
-  assign uio_out = 8'b0; // Placeholder, replace with actual logic
-  assign uio_oe = 8'b0; // Placeholder, replace with actual logic
+
+  // Outputs
+  assign uo_out  = Y; // Output the result Y
+  assign uio_out = 0; 
+  assign uio_oe  = 0; 
 
 endmodule
