@@ -1,4 +1,4 @@
-module Q5wan_4_bit_ALU (
+module tt_um_Q5wan_4_bit_ALU (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
